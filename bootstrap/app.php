@@ -7,9 +7,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\HandleCors;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -28,14 +28,24 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->renderable(function (ValidationException $e) {
-            return response()->json(['code' => 422, 'message' => $e->validator->errors()->first(), 'data' => null], 422);
-        });
-
-        $exceptions->renderable(function (NotFoundHttpException $e, Request $request) {
-            if ($request->is('api/*')) {
-                return response()->json(['code' => 404, 'message' => 'Route not defined', 'data' => null], 404);
+        $exceptions->renderable(function (Throwable $e) {
+            if (Config::get('app.debug')) {
+                return null;
             }
+
+            $status = match (true) {
+                $e instanceof ValidationException => 422,
+                $e instanceof HttpException => $e->getStatusCode(),
+                default => 500,
+            };
+
+            $message = match (true) {
+                $e instanceof ValidationException => $e->validator->errors()->first(),
+                $status === 500 => 'Internal Server Error',
+                default => $e->getMessage(),
+            };
+
+            return response()->json(['code' => $status, 'message' => $message], $status);
         });
     })
     ->withSchedule(function (Schedule $schedule) {

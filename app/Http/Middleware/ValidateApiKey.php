@@ -11,7 +11,7 @@ class ValidateApiKey
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->header('X-Api-Key') !== config('app.api_key')) {
-            return response()->json(['code' => 401, 'message' => 'Unauthorized', 'data' => null], 401);
+            abort(401, 'Unauthorized');
         }
 
         return $next($request);
