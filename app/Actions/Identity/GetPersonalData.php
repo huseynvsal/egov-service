@@ -62,8 +62,8 @@ class GetPersonalData
         }
 
         if ($identity->ExpireDate) {
-            $expiry = \DateTime::createFromFormat('d.m.Y', $identity->ExpireDate);
-            if ($expiry && $expiry < now()) {
+            $expiry = Carbon::createFromFormat('d.m.Y', $identity->ExpireDate);
+            if ($expiry->isPast()) {
                 return false;
             }
         }

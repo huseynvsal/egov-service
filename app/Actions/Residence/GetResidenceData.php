@@ -2,6 +2,7 @@
 
 namespace App\Actions\Residence;
 
+use Carbon\Carbon;
 use App\Contracts\LogRepositoryInterface;
 use App\Contracts\ResidenceRepositoryInterface;
 use App\Models\Log;
@@ -48,8 +49,8 @@ class GetResidenceData
         }
 
         if ($residence->ExpireDate) {
-            $expiry = \DateTime::createFromFormat('d.m.Y', $residence->ExpireDate);
-            if ($expiry && $expiry < now()) {
+            $expiry = Carbon::createFromFormat('d.m.Y', $residence->ExpireDate);
+            if ($expiry->isPast()) {
                 return false;
             }
         }
