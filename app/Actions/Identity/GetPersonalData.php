@@ -9,6 +9,7 @@ use App\Models\Identity;
 use App\Models\Log;
 use App\Services\AsanFinanceService;
 use Carbon\Carbon;
+use Faker\Factory as FakerFactory;
 
 class GetPersonalData
 {
@@ -68,22 +69,28 @@ class GetPersonalData
 
     private function mockData(string $fin): array
     {
+        $faker = FakerFactory::create('az_AZ');
+
+        $birthDate = $faker->dateTimeBetween('-60 years', '-18 years')->format('d.m.Y');
+        $givenDate = $faker->dateTimeBetween('-10 years', '-1 year')->format('d.m.Y');
+        $expireDate = $faker->dateTimeBetween('+1 year', '+10 years')->format('d.m.Y');
+
         $identity = new Identity([
             'PIN' => $fin,
             'DocumentSeria' => 'AA',
-            'DocumentNumber' => '1234567',
-            'Name' => 'Əli',
-            'Surname' => 'Həsənov',
-            'NameEn' => 'Ali',
-            'SurnameEn' => 'Hasanov',
-            'Patronymic' => 'Həsən oğlu',
-            'BirthDate' => '01.01.1990',
+            'DocumentNumber' => $faker->numerify('#######'),
+            'Name' => $faker->firstName(),
+            'Surname' => $faker->lastName(),
+            'NameEn' => $faker->firstName(),
+            'SurnameEn' => $faker->lastName(),
+            'Patronymic' => $faker->lastName() . ' oğlu',
+            'BirthDate' => $birthDate,
             'BirthAddress' => 'Bakı şəhəri',
             'Gender' => 'Kişi',
             'RegistrationAddress' => 'Bakı şəhəri, Nərimanov rayonu, Əliağa Vahid küç., ev 5, mən 12',
-            'GivenDate' => '01.01.2020',
-            'ActivationDate' => '01.01.2020',
-            'ExpireDate' => '01.01.2030',
+            'GivenDate' => $givenDate,
+            'ActivationDate' => $givenDate,
+            'ExpireDate' => $expireDate,
             'MaritalStatus' => 'Evli',
             'GivenOrganization' => 'Azərbaycan Respublikasının Daxili İşlər Nazirliyi',
             'Citizenship' => 'Azərbaycan Respublikası',
