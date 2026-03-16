@@ -28,6 +28,13 @@ services:
     networks:
       - egov_net
 
+  redis:
+    image: redis:7-alpine
+    container_name: egov_redis
+    restart: unless-stopped
+    networks:
+      - egov_net
+
 networks:
   egov_net:
     driver: bridge

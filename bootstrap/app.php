@@ -20,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'validate.api.key' => ValidateApiKey::class,
+            'validate-api-key' => ValidateApiKey::class,
         ]);
 
         $middleware->api(append: [
