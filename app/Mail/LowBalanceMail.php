@@ -10,9 +10,12 @@ use Illuminate\Queue\SerializesModels;
 
 class LowBalanceMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
-    public function __construct(public float $balance) {}
+    public function __construct(public float $balance)
+    {
+    }
 
     public function envelope(): Envelope
     {

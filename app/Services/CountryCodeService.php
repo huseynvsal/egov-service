@@ -10,7 +10,7 @@ class CountryCodeService
 {
     public function getNumericCode(string $countryName): string
     {
-        $cleaned  = $this->cleanCountryName($countryName);
+        $cleaned = $this->cleanCountryName($countryName);
         $cacheKey = 'country_code_' . md5(strtolower($cleaned));
 
         return Cache::rememberForever($cacheKey, function () use ($cleaned) {
@@ -23,6 +23,7 @@ class CountryCodeService
                 ->generate();
 
             $code = trim($response->text);
+
             return preg_match('/^\d+$/', $code) ? $code : '0';
         });
     }

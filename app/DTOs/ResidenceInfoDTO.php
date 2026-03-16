@@ -6,5 +6,6 @@ readonly class ResidenceInfoDTO
 {
     public function __construct(
         public string $fin,
-    ) {}
+    ) {
+    }
 }

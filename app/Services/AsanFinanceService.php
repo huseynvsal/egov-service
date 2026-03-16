@@ -9,12 +9,12 @@ use Illuminate\Support\Str;
 
 class AsanFinanceService
 {
-    private const STATUS_SUCCESS          = 0;
+    private const STATUS_SUCCESS = 0;
     private const STATUS_VALIDATION_ERROR = 1;
-    private const STATUS_SERVICE_ERROR    = 2;
-    private const STATUS_EXTERNAL_ERROR   = 3;
-    private const STATUS_RESTRICTED       = 4;
-    private const STATUS_PIN_VALIDATION   = 5;
+    private const STATUS_SERVICE_ERROR = 2;
+    private const STATUS_EXTERNAL_ERROR = 3;
+    private const STATUS_RESTRICTED = 4;
+    private const STATUS_PIN_VALIDATION = 5;
 
     private const MYGOV_ACTIVATION_MESSAGE =
         'MyGov tətbiqinə daxil olaraq "İcazələrin idarə edilməsi" bölməsindən ' .
@@ -28,9 +28,9 @@ class AsanFinanceService
             ->timeout(config('asanfinance.timeout', 10))
             ->withOptions(['verify' => config('asanfinance.verify_ssl_peer', false)])
             ->withHeaders([
-                'ApiKey'       => config('asanfinance.key'),
+                'ApiKey' => config('asanfinance.key'),
                 'Content-Type' => 'application/json',
-                'Accept'       => 'application/json',
+                'Accept' => 'application/json',
             ]);
     }
 
@@ -48,7 +48,7 @@ class AsanFinanceService
         $response = $this->client()
             ->withHeader('RequestIdentifier', Str::uuid()->toString())
             ->get('/api/v1/PersonalInfo/PinAndDocNumber', [
-                'pin'       => $fin,
+                'pin' => $fin,
                 'docNumber' => $docNumber,
             ]);
 
@@ -80,9 +80,9 @@ class AsanFinanceService
         $response = $this->client()
             ->get('/api/v1/info/balance', [
                 'StartDate' => $today,
-                'EndDate'   => $today,
-                'Offset'    => 0,
-                'Limit'     => 10,
+                'EndDate' => $today,
+                'Offset' => 0,
+                'Limit' => 10,
             ]);
 
         return $this->handleResponse($response->json());
@@ -92,18 +92,18 @@ class AsanFinanceService
     {
         $status = $jsonResponse['Status'];
 
-        if (!is_null($jsonResponse['Response'])) {
+        if (! is_null($jsonResponse['Response'])) {
             return $jsonResponse;
         }
 
         match ($status['Code']) {
-            self::STATUS_SUCCESS          => throw new EgovException($status['Message'] ?: 'Məlumat tapılmadı', 404),
+            self::STATUS_SUCCESS => throw new EgovException($status['Message'] ?: 'Məlumat tapılmadı', 404),
             self::STATUS_VALIDATION_ERROR => throw new EgovException($status['Message'], 422),
-            self::STATUS_SERVICE_ERROR    => throw new EgovException($status['Message'], 502),
-            self::STATUS_EXTERNAL_ERROR   => throw new EgovException($status['Message'], 502),
-            self::STATUS_RESTRICTED       => throw new UnreportableException(self::MYGOV_ACTIVATION_MESSAGE, 450),
-            self::STATUS_PIN_VALIDATION   => throw new EgovException($status['Message'], 422),
-            default                       => throw new EgovException($status['Message'], 400),
+            self::STATUS_SERVICE_ERROR => throw new EgovException($status['Message'], 502),
+            self::STATUS_EXTERNAL_ERROR => throw new EgovException($status['Message'], 502),
+            self::STATUS_RESTRICTED => throw new UnreportableException(self::MYGOV_ACTIVATION_MESSAGE, 450),
+            self::STATUS_PIN_VALIDATION => throw new EgovException($status['Message'], 422),
+            default => throw new EgovException($status['Message'], 400),
         };
     }
 }

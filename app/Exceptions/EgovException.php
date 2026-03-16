@@ -15,9 +15,9 @@ class EgovException extends Exception
     public function render(): JsonResponse
     {
         return response()->json([
-            'code'    => $this->statusCode,
+            'code' => $this->statusCode,
             'message' => $this->getMessage(),
-            'data'    => null,
+            'data' => null,
         ], $this->statusCode);
     }
 }

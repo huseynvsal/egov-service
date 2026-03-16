@@ -25,5 +25,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(LogRepositoryInterface::class, LogRepository::class);
     }
 
-    public function boot(): void {}
+    public function boot(): void
+    {
+    }
 }

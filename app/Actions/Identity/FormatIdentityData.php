@@ -13,52 +13,54 @@ class FormatIdentityData
     ];
 
     private const GENDER_MAP = [
-        'Kişi'  => '1',
+        'Kişi' => '1',
         'Qadın' => '2',
     ];
 
     private const MARITAL_MAP = [
-        'Evli'     => '2',
+        'Evli' => '2',
         'Boşanmış' => '3',
-        'Dul'      => '4',
+        'Dul' => '4',
     ];
 
     private const AZERBAIJAN_NUM_CODE = '31';
 
-    public function __construct(private readonly CountryCodeService $countryCodeService) {}
+    public function __construct(private readonly CountryCodeService $countryCodeService)
+    {
+    }
 
     public function handle(Identity $identity): array
     {
-        $name       = $this->toTitleCase($identity->Name ?? '');
-        $surname    = $this->toTitleCase($identity->Surname ?? '');
+        $name = $this->toTitleCase($identity->Name ?? '');
+        $surname = $this->toTitleCase($identity->Surname ?? '');
         $patronymic = $this->cleanPatronymic($identity->Patronymic ?? '');
-        $address    = $this->parsePersonalAddress($identity->RegistrationAddress ?? '');
+        $address = $this->parsePersonalAddress($identity->RegistrationAddress ?? '');
 
         return [
-            'base64image'                     => $identity->Image,
-            'clientName'                      => trim("{$name} {$identity->Patronymic} {$surname}"),
-            'name'                            => $name,
-            'lastname'                        => $surname,
-            'patronymic'                      => $patronymic,
-            'clientBirthDate'                 => $this->formatDate($identity->BirthDate ?? ''),
-            'clientBirthCountry'              => $this->countryCodeService->getNumericCode($identity->Citizenship ?? ''),
-            'clientBirthCity'                 => $this->extractBirthCity($identity->BirthAddress ?? ''),
-            'clientBirthDistrict'             => '',
-            'citizenship'                     => $this->cleanCitizenship($identity->Citizenship ?? ''),
-            'clientCity'                      => $address['city'],
-            'clientDistrict'                  => $address['district'],
-            'clientStreet'                    => $address['street'],
-            'clientBuilding'                  => $address['building'],
-            'clientApt'                       => $address['apt'],
-            'clientPassportIssueAt'           => $this->formatDate($identity->GivenDate ?? ''),
+            'base64image' => $identity->Image,
+            'clientName' => trim("{$name} {$identity->Patronymic} {$surname}"),
+            'name' => $name,
+            'lastname' => $surname,
+            'patronymic' => $patronymic,
+            'clientBirthDate' => $this->formatDate($identity->BirthDate ?? ''),
+            'clientBirthCountry' => $this->countryCodeService->getNumericCode($identity->Citizenship ?? ''),
+            'clientBirthCity' => $this->extractBirthCity($identity->BirthAddress ?? ''),
+            'clientBirthDistrict' => '',
+            'citizenship' => $this->cleanCitizenship($identity->Citizenship ?? ''),
+            'clientCity' => $address['city'],
+            'clientDistrict' => $address['district'],
+            'clientStreet' => $address['street'],
+            'clientBuilding' => $address['building'],
+            'clientApt' => $address['apt'],
+            'clientPassportIssueAt' => $this->formatDate($identity->GivenDate ?? ''),
             'clientPassportIssueOrganization' => $identity->GivenOrganization,
-            'clientPassportExpiresAt'         => $this->formatDate($identity->ExpireDate ?? ''),
-            'clientPassportFin'               => $identity->PIN,
-            'clientPassportSerialNumber'      => ($identity->DocumentSeria ?? '') . ($identity->DocumentNumber ?? ''),
-            'clientGender'                    => self::GENDER_MAP[$identity->Gender] ?? '1',
-            'clientCountry'                   => self::AZERBAIJAN_NUM_CODE,
-            'clientMarital'                   => self::MARITAL_MAP[$identity->MaritalStatus] ?? '1',
-            'clientNationality'               => $this->countryCodeService->getNumericCode($identity->Citizenship ?? ''),
+            'clientPassportExpiresAt' => $this->formatDate($identity->ExpireDate ?? ''),
+            'clientPassportFin' => $identity->PIN,
+            'clientPassportSerialNumber' => ($identity->DocumentSeria ?? '') . ($identity->DocumentNumber ?? ''),
+            'clientGender' => self::GENDER_MAP[$identity->Gender] ?? '1',
+            'clientCountry' => self::AZERBAIJAN_NUM_CODE,
+            'clientMarital' => self::MARITAL_MAP[$identity->MaritalStatus] ?? '1',
+            'clientNationality' => $this->countryCodeService->getNumericCode($identity->Citizenship ?? ''),
         ];
     }
 
@@ -66,6 +68,7 @@ class FormatIdentityData
     {
         $value = strtr($value, self::AZ_LOWER_MAP);
         $value = mb_strtolower($value);
+
         return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
     }
 
@@ -74,6 +77,7 @@ class FormatIdentityData
         $patronymic = strtr($patronymic, self::AZ_LOWER_MAP);
         $patronymic = mb_strtolower($patronymic);
         $patronymic = preg_replace('/ oğlu$| qızı$/', '', $patronymic);
+
         return trim($patronymic);
     }
 
@@ -82,16 +86,17 @@ class FormatIdentityData
         if (preg_match('/^(\d{2})\.(\d{2})\.(\d{4})$/', $date, $m)) {
             return "{$m[3]}-{$m[2]}-{$m[1]}";
         }
+
         return $date;
     }
 
     private function parsePersonalAddress(string $address): array
     {
-        $city     = '';
+        $city = '';
         $district = '';
-        $street   = '';
+        $street = '';
         $building = '';
-        $apt      = '';
+        $apt = '';
 
         if (preg_match('/([^,]+)\s+rayonu/u', $address, $m)) {
             $district = trim($m[1]);
@@ -128,6 +133,7 @@ class FormatIdentityData
         if (str_contains($birthAddress, ',')) {
             return trim(explode(',', $birthAddress)[0]);
         }
+
         return trim($birthAddress);
     }
 

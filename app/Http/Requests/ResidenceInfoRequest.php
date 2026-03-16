@@ -18,9 +18,9 @@ class ResidenceInfoRequest extends FormRequest
     protected function failedValidation(Validator $validator): void
     {
         throw new HttpResponseException(response()->json([
-            'code'    => 422,
+            'code' => 422,
             'message' => $validator->errors()->first(),
-            'data'    => null,
+            'data' => null,
         ], 422));
     }
 }

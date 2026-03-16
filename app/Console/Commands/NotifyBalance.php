@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Mail;
 
 class NotifyBalance extends Command
 {
-    protected $signature   = 'notify:balance';
+    protected $signature = 'notify:balance';
     protected $description = 'Check AsanFinance balance and notify if low';
 
     public function handle(AsanFinanceService $service): void
     {
         $response = $service->getBalance();
-        $balance  = $response['Response'][0]['Balance'] ?? 0;
+        $balance = $response['Response'][0]['Balance'] ?? 0;
 
         if ($balance <= config('egov.low_balance_threshold', 500)) {
             $emails = config('egov.low_balance_emails', []);

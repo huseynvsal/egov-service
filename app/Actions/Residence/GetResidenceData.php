@@ -15,7 +15,8 @@ class GetResidenceData
         private readonly ResidenceRepositoryInterface $residenceRepo,
         private readonly LogRepositoryInterface $logRepo,
         private readonly FormatResidenceData $formatter,
-    ) {}
+    ) {
+    }
 
     public function handle(string $fin): array
     {
@@ -24,7 +25,7 @@ class GetResidenceData
         if ($cached && $this->isFresh($cached)) {
             $residence = $cached;
         } else {
-            $apiData  = $this->asanFinance->getResidenceInfo($fin);
+            $apiData = $this->asanFinance->getResidenceInfo($fin);
             $response = $apiData['Response'];
 
             $residence = $this->residenceRepo->upsertByPin($fin, $response);
@@ -33,7 +34,7 @@ class GetResidenceData
         $this->logRepo->add($fin, Log::TYPE_RESIDENCE);
 
         return [
-            'raw'        => $residence->toArray(),
+            'raw' => $residence->toArray(),
             'formatData' => $this->formatter->handle($residence),
         ];
     }

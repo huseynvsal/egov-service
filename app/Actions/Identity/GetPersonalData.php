@@ -17,7 +17,8 @@ class GetPersonalData
         private readonly IdentityRepositoryInterface $identityRepo,
         private readonly LogRepositoryInterface $logRepo,
         private readonly FormatIdentityData $formatter,
-    ) {}
+    ) {
+    }
 
     public function handle(string $fin, ?string $docNumber = null): array
     {
@@ -37,7 +38,7 @@ class GetPersonalData
             $response = $apiData['Response'];
 
             if (empty($response['ExpireDate'])) {
-                $birthDate            = Carbon::createFromFormat('d.m.Y', $response['BirthDate']);
+                $birthDate = Carbon::createFromFormat('d.m.Y', $response['BirthDate']);
                 $response['ExpireDate'] = $birthDate->addYears(100)->format('d.m.Y');
             }
 
@@ -47,7 +48,7 @@ class GetPersonalData
         $this->logRepo->add($fin, Log::TYPE_PERSONAL);
 
         return [
-            'raw'        => $identity->toArray(),
+            'raw' => $identity->toArray(),
             'formatData' => $this->formatter->handle($identity),
         ];
     }
@@ -74,39 +75,39 @@ class GetPersonalData
     {
         $faker = FakerFactory::create('az_AZ');
 
-        $birthDate  = $faker->dateTimeBetween('-60 years', '-18 years')->format('d.m.Y');
-        $givenDate  = $faker->dateTimeBetween('-10 years', '-1 year')->format('d.m.Y');
+        $birthDate = $faker->dateTimeBetween('-60 years', '-18 years')->format('d.m.Y');
+        $givenDate = $faker->dateTimeBetween('-10 years', '-1 year')->format('d.m.Y');
         $expireDate = $faker->dateTimeBetween('+1 year', '+10 years')->format('d.m.Y');
 
         $identity = new Identity([
-            'PIN'                 => $fin,
-            'DocumentSeria'       => 'AA',
-            'DocumentNumber'      => $faker->numerify('#######'),
-            'Name'                => $faker->firstName(),
-            'Surname'             => $faker->lastName(),
-            'NameEn'              => $faker->firstName(),
-            'SurnameEn'           => $faker->lastName(),
-            'Patronymic'          => $faker->lastName() . ' oğlu',
-            'BirthDate'           => $birthDate,
-            'BirthAddress'        => 'Bakı şəhəri',
-            'Gender'              => 'Kişi',
+            'PIN' => $fin,
+            'DocumentSeria' => 'AA',
+            'DocumentNumber' => $faker->numerify('#######'),
+            'Name' => $faker->firstName(),
+            'Surname' => $faker->lastName(),
+            'NameEn' => $faker->firstName(),
+            'SurnameEn' => $faker->lastName(),
+            'Patronymic' => $faker->lastName() . ' oğlu',
+            'BirthDate' => $birthDate,
+            'BirthAddress' => 'Bakı şəhəri',
+            'Gender' => 'Kişi',
             'RegistrationAddress' => 'Bakı şəhəri, Nərimanov rayonu, Əliağa Vahid küç., ev 5, mən 12',
-            'GivenDate'           => $givenDate,
-            'ActivationDate'      => $givenDate,
-            'ExpireDate'          => $expireDate,
-            'MaritalStatus'       => 'Evli',
-            'GivenOrganization'   => 'Azərbaycan Respublikasının Daxili İşlər Nazirliyi',
-            'Citizenship'         => 'Azərbaycan Respublikası',
-            'Image'               => null,
-            'Sign'                => null,
-            'MilitaryStatus'      => null,
-            'BloodType'           => 'A(II)',
-            'EyeColor'            => 'Qara',
-            'Height'              => 175,
+            'GivenDate' => $givenDate,
+            'ActivationDate' => $givenDate,
+            'ExpireDate' => $expireDate,
+            'MaritalStatus' => 'Evli',
+            'GivenOrganization' => 'Azərbaycan Respublikasının Daxili İşlər Nazirliyi',
+            'Citizenship' => 'Azərbaycan Respublikası',
+            'Image' => null,
+            'Sign' => null,
+            'MilitaryStatus' => null,
+            'BloodType' => 'A(II)',
+            'EyeColor' => 'Qara',
+            'Height' => 175,
         ]);
 
         return [
-            'raw'        => $identity->toArray(),
+            'raw' => $identity->toArray(),
             'formatData' => $this->formatter->handle($identity),
         ];
     }

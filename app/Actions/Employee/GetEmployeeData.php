@@ -15,7 +15,8 @@ class GetEmployeeData
         private readonly AsanFinanceService $asanFinance,
         private readonly EmployeeRepositoryInterface $employeeRepo,
         private readonly LogRepositoryInterface $logRepo,
-    ) {}
+    ) {
+    }
 
     public function handle(string $fin): array
     {
@@ -29,7 +30,7 @@ class GetEmployeeData
             return $cached->employee_data;
         }
 
-        $apiData  = $this->asanFinance->getEmployeeInfo($fin);
+        $apiData = $this->asanFinance->getEmployeeInfo($fin);
         $response = $apiData['Response'];
 
         $this->employeeRepo->upsertByPin($fin, ['employee_data' => $response]);
@@ -41,6 +42,7 @@ class GetEmployeeData
     private function isFresh(Employee $employee): bool
     {
         $ttlDays = config('egov.update_after_days', 7);
+
         return $employee->updated_at->diffInDays(now()) < $ttlDays;
     }
 
@@ -49,14 +51,14 @@ class GetEmployeeData
         $faker = FakerFactory::create('az_AZ');
 
         return [
-            'PIN'          => $fin,
-            'Name'         => $faker->firstName(),
-            'Surname'      => $faker->lastName(),
-            'Employer'     => $faker->company(),
-            'Position'     => $faker->jobTitle(),
-            'StartDate'    => $faker->dateTimeBetween('-5 years', '-1 year')->format('d.m.Y'),
-            'EndDate'      => null,
-            'EmployerTin'  => $faker->numerify('##########'),
+            'PIN' => $fin,
+            'Name' => $faker->firstName(),
+            'Surname' => $faker->lastName(),
+            'Employer' => $faker->company(),
+            'Position' => $faker->jobTitle(),
+            'StartDate' => $faker->dateTimeBetween('-5 years', '-1 year')->format('d.m.Y'),
+            'EndDate' => null,
+            'EmployerTin' => $faker->numerify('##########'),
         ];
     }
 }

@@ -1,4 +1,5 @@
 COMPOSER = docker run --rm -v $(PWD):/app -w /app composer:latest
+PINT     = docker run --rm -v $(PWD):/app -w /app composer:latest exec pint
 APP      = docker exec egov_app
 
 # ─── Docker ───────────────────────────────────────────────────────────────────
@@ -75,10 +76,10 @@ test-coverage:
 # ─── Code Quality ─────────────────────────────────────────────────────────────
 
 lint:
-	$(APP) ./vendor/bin/pint --test
+	$(PINT) --test
 
 fix:
-	$(APP) ./vendor/bin/pint
+	$(PINT)
 
 # ─── Setup ────────────────────────────────────────────────────────────────────
 

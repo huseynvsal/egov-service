@@ -156,7 +156,7 @@ class CountrySeeder extends Seeder
             ['num_code' => 887, 'alpha_2' => 'YE', 'alpha_3' => 'YEM', 'country_name' => 'Yemen',                                 'dialing_code' => '+967'],
             ['num_code' => 894, 'alpha_2' => 'ZM', 'alpha_3' => 'ZMB', 'country_name' => 'Zambia',                                'dialing_code' => '+260'],
             ['num_code' => 716, 'alpha_2' => 'ZW', 'alpha_3' => 'ZWE', 'country_name' => 'Zimbabwe',                              'dialing_code' => '+263'],
-            ['num_code' => 008, 'alpha_2' => 'AL', 'alpha_3' => 'ALB', 'country_name' => 'Albania',                               'dialing_code' => '+355'],
+            ['num_code' => 8, 'alpha_2' => 'AL', 'alpha_3' => 'ALB', 'country_name' => 'Albania',                               'dialing_code' => '+355'],
             ['num_code' => 51,  'alpha_2' => 'AM', 'alpha_3' => 'ARM', 'country_name' => 'Armenia',                               'dialing_code' => '+374'],
             ['num_code' => 112, 'alpha_2' => 'BY', 'alpha_3' => 'BLR', 'country_name' => 'Belarus',                               'dialing_code' => '+375'],
             ['num_code' => 414, 'alpha_2' => 'KW', 'alpha_3' => 'KWT', 'country_name' => 'Kuwait',                                'dialing_code' => '+965'],

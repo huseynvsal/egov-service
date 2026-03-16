@@ -14,6 +14,7 @@ class CountryRepository implements CountryRepositoryInterface
 
         return Cache::rememberForever($cacheKey, function () use ($name) {
             $country = Country::where('country_name', 'LIKE', '%' . $name . '%')->first();
+
             return $country?->num_code ? (string) $country->num_code : null;
         });
     }
