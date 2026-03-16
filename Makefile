@@ -44,11 +44,6 @@ migrate:
 migrate-fresh:
 	$(APP) php artisan migrate:fresh
 
-seed:
-	$(APP) php artisan db:seed
-
-migrate-seed:
-	$(APP) php artisan migrate:fresh --seed
 
 key:
 	$(APP) php artisan key:generate
@@ -83,9 +78,9 @@ fix:
 
 # ─── Setup ────────────────────────────────────────────────────────────────────
 
-setup: install up key migrate seed
+setup: install up key
 	@echo "Setup complete — http://localhost"
 
 .PHONY: up up-build down restart logs install require require-dev dump \
-        artisan migrate migrate-fresh seed migrate-seed key cache-clear tinker \
+        artisan migrate migrate-fresh key cache-clear tinker \
         test test-filter test-coverage lint fix setup
