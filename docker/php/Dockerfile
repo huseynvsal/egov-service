@@ -18,8 +18,10 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts --no-autoloader
 COPY . .
 
 RUN composer dump-autoload --optimize \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod +x docker/php/start.sh
+    && chown -R www-data:www-data storage bootstrap/cache
+
+RUN printf '#!/bin/sh\nset -e\nphp artisan config:cache\nphp artisan route:cache\nphp artisan view:cache\nexec php-fpm\n' > /usr/local/bin/start.sh \
+    && chmod +x /usr/local/bin/start.sh
 
 EXPOSE 9000
-CMD ["docker/php/start.sh"]
+CMD ["/usr/local/bin/start.sh"]
