@@ -15,9 +15,8 @@ class UnreportableException extends Exception
     public function render(): JsonResponse
     {
         return response()->json([
-            'code' => $this->statusCode,
+            'code'    => $this->statusCode,
             'message' => $this->getMessage(),
-            'data' => null,
         ], $this->statusCode);
     }
 
