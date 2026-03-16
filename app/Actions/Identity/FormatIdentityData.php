@@ -9,23 +9,23 @@ use App\Services\CountryCodeService;
 class FormatIdentityData
 {
     use FormatsApiDate;
-    private const AZ_LOWER_MAP = [
+    private const array AZ_LOWER_MAP = [
         'Ğ' => 'ğ', 'Ü' => 'ü', 'Ş' => 'ş', 'İ' => 'i',
         'Ö' => 'ö', 'Ç' => 'ç', 'I' => 'ı',
     ];
 
-    private const GENDER_MAP = [
+    private const array GENDER_MAP = [
         'Kişi' => '1',
         'Qadın' => '2',
     ];
 
-    private const MARITAL_MAP = [
+    private const array MARITAL_MAP = [
         'Evli' => '2',
         'Boşanmış' => '3',
         'Dul' => '4',
     ];
 
-    private const AZERBAIJAN_NUM_CODE = '31';
+    private const string AZERBAIJAN_NUM_CODE = '31';
 
     public function __construct(private readonly CountryCodeService $countryCodeService)
     {

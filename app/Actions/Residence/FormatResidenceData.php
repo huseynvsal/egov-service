@@ -9,18 +9,18 @@ use App\Services\CountryCodeService;
 class FormatResidenceData
 {
     use FormatsApiDate;
-    private const GENDER_MAP = [
+    private const array GENDER_MAP = [
         'Kişi' => '1',
         'Qadın' => '2',
     ];
 
-    private const DOCUMENT_TYPE_MAP = [
+    private const array DOCUMENT_TYPE_MAP = [
         'Daimi yaşama icazə vəsiqəsi' => 'DYI',
         'Müvəqqəti yaşama icazə vəsiqəsi' => 'MYI',
     ];
 
-    private const AZERBAIJAN_NUM_CODE = '31';
-    private const ISSUE_ORGANIZATION = 'Dövlət Miqrasiya Xidməti';
+    private const string AZERBAIJAN_NUM_CODE = '31';
+    private const string ISSUE_ORGANIZATION = 'Dövlət Miqrasiya Xidməti';
 
     public function __construct(private readonly CountryCodeService $countryCodeService)
     {

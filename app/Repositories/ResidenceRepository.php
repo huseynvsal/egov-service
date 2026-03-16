@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Cache;
 
 class ResidenceRepository implements ResidenceRepositoryInterface
 {
-    private const CACHE_TTL_HOURS = 6;
+    private const int CACHE_TTL_HOURS = 6;
 
     public function findByPin(string $pin): ?Residence
     {
