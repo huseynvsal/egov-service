@@ -4,16 +4,27 @@ namespace App\Repositories;
 
 use App\Contracts\IdentityRepositoryInterface;
 use App\Models\Identity;
+use Illuminate\Support\Facades\Cache;
 
 class IdentityRepository implements IdentityRepositoryInterface
 {
+    private const CACHE_TTL_HOURS = 6;
+
     public function findByPin(string $pin): ?Identity
     {
-        return Identity::where('PIN', $pin)->first();
+        return Cache::remember("identity:{$pin}", now()->addHours(self::CACHE_TTL_HOURS), function () use ($pin) {
+            return Identity::where('PIN', $pin)->first();
+        });
     }
 
     public function upsertByPin(string $pin, array $data): Identity
     {
-        return Identity::updateOrCreate(['PIN' => $pin], $data);
+        Identity::where('PIN', $pin)->delete();
+
+        $identity = Identity::create(array_merge(['PIN' => $pin], $data));
+
+        Cache::put("identity:{$pin}", $identity, now()->addHours(self::CACHE_TTL_HOURS));
+
+        return $identity;
     }
 }

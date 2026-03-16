@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Exceptions\AsanFinanceConnectionException;
 use App\Exceptions\EgovException;
 use App\Exceptions\UnreportableException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -37,56 +39,47 @@ class AsanFinanceService
 
     public function getPersonalInfoByFin(string $fin): array
     {
-        $response = $this->client()
+        return $this->request(fn () => $this->client()
             ->withHeader('RequestIdentifier', Str::uuid()->toString())
-            ->get("/api/v1/PersonalInfo/{$fin}");
-
-        return $this->handleResponse($response->json());
+            ->get("/api/v1/PersonalInfo/{$fin}"));
     }
 
     public function getPersonalInfoByFinAndDoc(string $fin, string $docNumber): array
     {
-        $response = $this->client()
+        return $this->request(fn () => $this->client()
             ->withHeader('RequestIdentifier', Str::uuid()->toString())
-            ->get('/api/v1/PersonalInfo/PinAndDocNumber', [
-                'pin' => $fin,
-                'docNumber' => $docNumber,
-            ]);
-
-        return $this->handleResponse($response->json());
+            ->get('/api/v1/PersonalInfo/PinAndDocNumber', ['pin' => $fin, 'docNumber' => $docNumber]));
     }
 
     public function getResidenceInfo(string $fin): array
     {
-        $response = $this->client()
+        return $this->request(fn () => $this->client()
             ->withHeader('RequestIdentifier', Str::uuid()->toString())
-            ->get("/api/v1/DMXInfo/{$fin}");
-
-        return $this->handleResponse($response->json());
+            ->get("/api/v1/DMXInfo/{$fin}"));
     }
 
     public function getEmployeeInfo(string $fin): array
     {
-        $response = $this->client()
+        return $this->request(fn () => $this->client()
             ->withHeader('RequestIdentifier', Str::uuid()->toString())
-            ->get("/api/v2/EmployeeInfo/{$fin}");
-
-        return $this->handleResponse($response->json());
+            ->get("/api/v2/EmployeeInfo/{$fin}"));
     }
 
     public function getBalance(): array
     {
         $today = now()->format('Y-m-d');
 
-        $response = $this->client()
-            ->get('/api/v1/info/balance', [
-                'StartDate' => $today,
-                'EndDate' => $today,
-                'Offset' => 0,
-                'Limit' => 10,
-            ]);
+        return $this->request(fn () => $this->client()
+            ->get('/api/v1/info/balance', ['StartDate' => $today, 'EndDate' => $today, 'Offset' => 0, 'Limit' => 10]));
+    }
 
-        return $this->handleResponse($response->json());
+    private function request(callable $call): array
+    {
+        try {
+            return $this->handleResponse($call()->json());
+        } catch (ConnectionException $e) {
+            throw new AsanFinanceConnectionException($e->getMessage());
+        }
     }
 
     private function handleResponse(array $jsonResponse): array

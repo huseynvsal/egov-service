@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\Contracts\LogRepositoryInterface;
-use App\Models\Log;
+use App\Jobs\WriteRequestLog;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -11,7 +11,7 @@ class LogRepository implements LogRepositoryInterface
 {
     public function add(string $pin, int $type): void
     {
-        Log::create(['pin' => $pin, 'type' => $type]);
+        dispatch(new WriteRequestLog($pin, $type));
     }
 
     public function yearlyReport(): Collection
