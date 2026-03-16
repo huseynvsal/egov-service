@@ -3,7 +3,8 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
-use Laravel\Ai\Ai;
+
+use function Laravel\Ai\agent;
 
 class CountryCodeService
 {
@@ -12,12 +13,13 @@ class CountryCodeService
         $cacheKey = 'country_code_' . md5(strtolower($countryName));
 
         return Cache::rememberForever($cacheKey, function () use ($countryName) {
-            $response = Ai::agent()->prompt(
-                "Return ONLY the ISO 3166-1 numeric country code (as a plain number, no text) for: {$countryName}. " .
-                'If unknown, return 0.',
-                provider: 'anthropic',
-                model: 'claude-haiku-4-5-20251001',
-            );
+            $response = agent('You are a country code lookup assistant. Return only numbers, no extra text.')
+                ->prompt(
+                    "Return ONLY the ISO 3166-1 numeric country code (as a plain number, no text) for: {$countryName}. " .
+                    'If unknown, return 0.',
+                    provider: 'anthropic',
+                    model: 'claude-haiku-4-5-20251001',
+                );
 
             $code = trim($response->text);
 
