@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\CountryRepositoryInterface;
 use App\Models\Country;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class CountryRepository implements CountryRepositoryInterface
@@ -19,7 +20,7 @@ class CountryRepository implements CountryRepositoryInterface
         });
     }
 
-    public function yearlyReport(): \Illuminate\Support\Collection
+    public function yearlyReport(): Collection
     {
         return collect();
     }

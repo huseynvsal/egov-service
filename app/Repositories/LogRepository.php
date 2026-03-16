@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\LogRepositoryInterface;
 use App\Models\Log;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class LogRepository implements LogRepositoryInterface
@@ -13,7 +14,7 @@ class LogRepository implements LogRepositoryInterface
         Log::create(['pin' => $pin, 'type' => $type]);
     }
 
-    public function yearlyReport(): \Illuminate\Support\Collection
+    public function yearlyReport(): Collection
     {
         return DB::table('logs')
             ->selectRaw('YEAR(created_at) as request_year, MONTH(created_at) as request_month')
