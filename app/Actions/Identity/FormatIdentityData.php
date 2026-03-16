@@ -2,11 +2,13 @@
 
 namespace App\Actions\Identity;
 
+use App\Concerns\FormatsApiDate;
 use App\Models\Identity;
 use App\Services\CountryCodeService;
 
 class FormatIdentityData
 {
+    use FormatsApiDate;
     private const AZ_LOWER_MAP = [
         'Ğ' => 'ğ', 'Ü' => 'ü', 'Ş' => 'ş', 'İ' => 'i',
         'Ö' => 'ö', 'Ç' => 'ç', 'I' => 'ı',
@@ -79,15 +81,6 @@ class FormatIdentityData
         $patronymic = preg_replace('/ oğlu$| qızı$/', '', $patronymic);
 
         return trim($patronymic);
-    }
-
-    private function formatDate(string $date): string
-    {
-        if (preg_match('/^(\d{2})\.(\d{2})\.(\d{4})$/', $date, $m)) {
-            return "{$m[3]}-{$m[2]}-{$m[1]}";
-        }
-
-        return $date;
     }
 
     private function parsePersonalAddress(string $address): array

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Identity;
 
+use App\Concerns\ChecksCacheFreshness;
 use App\Contracts\IdentityRepositoryInterface;
 use App\Contracts\LogRepositoryInterface;
 use App\Models\Identity;
@@ -12,6 +13,8 @@ use Faker\Factory as FakerFactory;
 
 class GetPersonalData
 {
+    use ChecksCacheFreshness;
+
     public function __construct(
         private readonly AsanFinanceService $asanFinance,
         private readonly IdentityRepositoryInterface $identityRepo,
@@ -26,24 +29,7 @@ class GetPersonalData
             return $this->mockData($fin);
         }
 
-        $cached = $this->identityRepo->findByPin($fin);
-
-        if ($cached && $this->isFresh($cached)) {
-            $identity = $cached;
-        } else {
-            $apiData = $docNumber
-                ? $this->asanFinance->getPersonalInfoByFinAndDoc($fin, $docNumber)
-                : $this->asanFinance->getPersonalInfoByFin($fin);
-
-            $response = $apiData['Response'];
-
-            if (empty($response['ExpireDate'])) {
-                $birthDate = Carbon::createFromFormat('d.m.Y', $response['BirthDate']);
-                $response['ExpireDate'] = $birthDate->addYears(100)->format('d.m.Y');
-            }
-
-            $identity = $this->identityRepo->upsertByPin($fin, $response);
-        }
+        $identity = $this->resolveIdentity($fin, $docNumber);
 
         $this->logRepo->add($fin, Log::TYPE_PERSONAL);
 
@@ -53,22 +39,32 @@ class GetPersonalData
         ];
     }
 
-    private function isFresh(Identity $identity): bool
+    private function resolveIdentity(string $fin, ?string $docNumber): Identity
     {
-        $ttlDays = config('egov.update_after_days', 7);
+        $cached = $this->identityRepo->findByPin($fin);
 
-        if ($identity->updated_at->diffInDays(now()) >= $ttlDays) {
-            return false;
+        if ($cached && $this->isFresh($cached)) {
+            return $cached;
         }
 
-        if ($identity->ExpireDate) {
-            $expiry = Carbon::createFromFormat('d.m.Y', $identity->ExpireDate);
-            if ($expiry->isPast()) {
-                return false;
-            }
+        return $this->fetchAndStore($fin, $docNumber);
+    }
+
+    private function fetchAndStore(string $fin, ?string $docNumber): Identity
+    {
+        $data = $docNumber
+            ? $this->asanFinance->getPersonalInfoByFinAndDoc($fin, $docNumber)
+            : $this->asanFinance->getPersonalInfoByFin($fin);
+
+        $response = $data['Response'];
+
+        if (empty($response['ExpireDate'])) {
+            $response['ExpireDate'] = Carbon::createFromFormat('d.m.Y', $response['BirthDate'])
+                ->addYears(100)
+                ->format('d.m.Y');
         }
 
-        return true;
+        return $this->identityRepo->upsertByPin($fin, $response);
     }
 
     private function mockData(string $fin): array

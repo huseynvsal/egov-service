@@ -2,7 +2,7 @@
 
 namespace App\Actions\Residence;
 
-use Carbon\Carbon;
+use App\Concerns\ChecksCacheFreshness;
 use App\Contracts\LogRepositoryInterface;
 use App\Contracts\ResidenceRepositoryInterface;
 use App\Models\Log;
@@ -11,6 +11,8 @@ use App\Services\AsanFinanceService;
 
 class GetResidenceData
 {
+    use ChecksCacheFreshness;
+
     public function __construct(
         private readonly AsanFinanceService $asanFinance,
         private readonly ResidenceRepositoryInterface $residenceRepo,
@@ -21,16 +23,7 @@ class GetResidenceData
 
     public function handle(string $fin): array
     {
-        $cached = $this->residenceRepo->findByPin($fin);
-
-        if ($cached && $this->isFresh($cached)) {
-            $residence = $cached;
-        } else {
-            $apiData = $this->asanFinance->getResidenceInfo($fin);
-            $response = $apiData['Response'];
-
-            $residence = $this->residenceRepo->upsertByPin($fin, $response);
-        }
+        $residence = $this->resolveResidence($fin);
 
         $this->logRepo->add($fin, Log::TYPE_RESIDENCE);
 
@@ -40,21 +33,16 @@ class GetResidenceData
         ];
     }
 
-    private function isFresh(Residence $residence): bool
+    private function resolveResidence(string $fin): Residence
     {
-        $ttlDays = config('egov.update_after_days', 7);
+        $cached = $this->residenceRepo->findByPin($fin);
 
-        if ($residence->updated_at->diffInDays(now()) >= $ttlDays) {
-            return false;
+        if ($cached && $this->isFresh($cached)) {
+            return $cached;
         }
 
-        if ($residence->ExpireDate) {
-            $expiry = Carbon::createFromFormat('d.m.Y', $residence->ExpireDate);
-            if ($expiry->isPast()) {
-                return false;
-            }
-        }
+        $data = $this->asanFinance->getResidenceInfo($fin);
 
-        return true;
+        return $this->residenceRepo->upsertByPin($fin, $data['Response']);
     }
 }

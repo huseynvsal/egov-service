@@ -24,26 +24,36 @@ class GetEmployeeData
             return $this->mockData($fin);
         }
 
+        $data = $this->resolveEmployeeData($fin);
+
+        $this->logRepo->add($fin, Log::TYPE_EMPLOYEE);
+
+        return $data;
+    }
+
+    private function resolveEmployeeData(string $fin): array
+    {
         $cached = $this->employeeRepo->findByPin($fin);
 
         if ($cached && $this->isFresh($cached)) {
             return $cached->employee_data;
         }
 
-        $apiData = $this->asanFinance->getEmployeeInfo($fin);
-        $response = $apiData['Response'];
+        return $this->fetchAndStore($fin);
+    }
+
+    private function fetchAndStore(string $fin): array
+    {
+        $response = $this->asanFinance->getEmployeeInfo($fin)['Response'];
 
         $this->employeeRepo->upsertByPin($fin, ['employee_data' => $response]);
-        $this->logRepo->add($fin, Log::TYPE_EMPLOYEE);
 
         return $response;
     }
 
     private function isFresh(Employee $employee): bool
     {
-        $ttlDays = config('egov.update_after_days', 7);
-
-        return $employee->updated_at->diffInDays(now()) < $ttlDays;
+        return $employee->updated_at->diffInDays(now()) < config('egov.update_after_days', 7);
     }
 
     private function mockData(string $fin): array
