@@ -11,14 +11,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+COPY composer.json composer.lock ./
+
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-autoloader
+
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader \
+RUN composer dump-autoload --optimize \
     && php artisan config:cache \
     && php artisan route:cache \
-    && php artisan view:cache
-
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+    && php artisan view:cache \
+    && chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 9000
 CMD ["php-fpm"]
