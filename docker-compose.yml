@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: egov_app
+    restart: unless-stopped
+    volumes:
+      - ./storage:/var/www/html/storage
+    env_file:
+      - .env
+    networks:
+      - egov_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: egov_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - egov_net
+
+networks:
+  egov_net:
+    driver: bridge
